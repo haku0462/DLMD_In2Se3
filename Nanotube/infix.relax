@@ -1,0 +1,66 @@
+#system
+units           metal
+atom_style	atomic
+dimension       3
+boundary        s p s
+
+
+
+#model 
+read_data        In2Se3.data
+
+region           out cylinder y 0.0 0.0 27.5 INF INF side out
+group            out region out
+group            relax subtract all out
+
+
+#potential
+pair_style     deepmd In2Se3_.pb
+pair_coeff     * *
+
+compute         OO all orientorder/atom 
+compute         coord all coord/atom cutoff 3.2
+
+variable        q4 atom c_OO[1]-0.240094
+variable        q6 atom c_OO[2]-0.323672
+variable        q8 atom c_OO[3]-0.343215
+variable        q10 atom c_OO[4]-0.319352
+variable        q12 atom c_OO[5]-0.487558
+
+variable        K4 atom c_OO[1]-0.334571
+variable        K6 atom c_OO[2]-0.214793
+variable        K8 atom c_OO[3]-0.553496
+variable        K10 atom c_OO[4]-0.347912
+variable        K12 atom c_OO[5]-0.438031
+
+
+run             0
+
+variable        qt  atom (abs(v_q4)+abs(v_q6)+abs(v_q8)+abs(v_q10)+abs(v_q12))/1.713891
+variable        Kt  atom (abs(v_K4)+abs(v_K6)+abs(v_K8)+abs(v_K10)+abs(v_K12))/1.888803
+
+velocity        out set 0 0 0
+fix             1 out setforce 0.0 0.0 0.0
+
+
+fix             2 all ave/atom 1 10 10 v_qt 
+fix             3 all ave/atom 1 10 10 v_Kt 
+fix             4 all ave/atom 1 10 10 c_coord 
+
+#output
+thermo          100
+thermo_style    custom step temp pxx pyy pxy density pe 
+
+
+dump            1 all custom 100 InSe_relax300_long.lammpstrj id type element xs ys zs v_qt v_Kt c_coord f_2 f_3 f_4
+
+minimize        1e-10 1e-10 10000 10000
+
+
+velocity        relax create 300.0 2524524
+fix             nvt relax nvt temp 300.0 300.0 0.1
+fix             nve out nve 
+
+timestep        0.001
+
+run             100000
