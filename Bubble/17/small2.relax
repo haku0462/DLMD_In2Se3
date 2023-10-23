@@ -1,0 +1,221 @@
+#system
+units           metal
+atom_style	full
+dimension       3
+boundary        p p s
+
+
+
+#model 
+read_data        In2Se3_sin.data
+variable         k      equal 1.0
+variable         n      equal 2*3.1415926/lx
+variable         n1     equal 2*3.1415926/ly
+variable         m1     equal 17
+
+variable         z1 atom z-v_m1*sin(v_n*x)*sin(v_n1*y)+2.8
+variable         pz1 atom "v_z1 < 0"
+group            pz1 variable pz1
+group            relax subtract all pz1
+
+region           anax block INF INF -64.0 -60.0 INF INF
+group            anax region anax
+region           anay block -42 -37 INF INF INF INF 
+group            anay region anay
+
+
+variable         fz1    atom  -v_k*(z-v_m1*sin(v_n*x)*sin(v_n1*y)+3.242268)
+variable         ener1  atom  v_k*0.5*z^2-v_k*v_m1*sin(v_n*x)*sin(v_n1*y)*z+3.242268*v_k*z
+
+#potential
+pair_style       deepmd In2Se3_.pb
+pair_coeff       * *
+
+compute          1 all chunk/atom bin/2d x lower 7.10 y lower 4.1 
+compute          2 all chunk/atom bin/2d x lower 14.20 y lower 8.2
+compute          3 all dipole/chunk 1 
+compute          4 all dipole/chunk 2
+compute          5 all chunk/spread/atom 1 c_3[*]
+compute          6 all chunk/spread/atom 2 c_4[*]
+
+fix             2 pz1 addforce 0.0 0.0 v_fz1 energy v_ener1
+
+dump            1 all custom 1000 InSe_minimizesmall.lammpstrj id type element xs ys zs c_5[*] c_6[*]
+
+min_modify      dmax 2.0
+minimize        1e-10 1e-10 100000 100000 
+
+undump          1
+
+reset_timestep   10000
+#
+region           rightup block  58.4824 65.7926 68.6289 72.7884 INF INF
+region           rightup1 block  65.7926 73.1028 72.7884 76.9479 INF INF
+region           rightup2 block  65.7926 73.1028 68.6289 72.7884 INF INF
+region           rightup3 block  65.7926 73.1028 64.4694 68.6289 INF INF
+region           rightup4 block  58.4824 65.7926 72.7884 76.9479 INF INF
+region           rightup5 block  51.1724 58.4824 72.7884 76.9479 INF INF
+region           rightup6 block  51.1724 58.4824 68.6289 72.7884 INF INF
+region           rightup7 block  51.1724 58.4824 64.4694 68.6289 INF INF
+region           rightup8 block  58.4824 65.7926 64.4694 68.6289 INF INF
+#
+region           rightdown block 58.4824 65.7926 -72.7884 -68.6289 INF INF 
+region           rightdown1 block 65.7926 73.1028 -76.9479 -72.7884 INF INF 
+region           rightdown2 block 65.7926 73.1028 -72.7884 -68.6289 INF INF 
+region           rightdown3 block 65.7926 73.1028 -68.6289 -64.4694 INF INF 
+region           rightdown4 block 58.4824 65.7926 -76.9479 -72.7884 INF INF 
+region           rightdown5 block 51.1724 58.4824 -76.9479 -72.7884 INF INF 
+region           rightdown6 block 51.1724 58.4824 -72.7884 -68.6289 INF INF 
+region           rightdown7 block 51.1724 58.4824 -68.6289 -64.4694 INF INF 
+region           rightdown8 block 58.4824 65.7926 -68.6289 -64.4694 INF INF 
+#
+region           leftup block  -65.7926 -58.4824 68.6289 72.7884 INF INF
+region           leftup1 block  -73.1028 -65.7926 72.7884 76.9479 INF INF
+region           leftup2 block  -73.1028 -65.7926 68.6289 72.7884 INF INF
+region           leftup3 block  -73.1028 -65.7926 64.4694 68.6289 INF INF
+region           leftup4 block  -65.7926 -58.4824 72.7884 76.9479 INF INF
+region           leftup5 block  -58.4824 -51.1724 72.7884 76.9479 INF INF
+region           leftup6 block  -58.4824 -51.1724 68.6289 72.7884 INF INF
+region           leftup7 block  -58.4824 -51.1724 64.4694 68.6289 INF INF
+region           leftup8 block  -65.7926 -58.4824 64.4694 68.6289 INF INF
+#
+region           leftdown block  -65.7926 -58.4824 -72.7884 -68.6289 INF INF
+region           leftdown1 block  -73.1028 -65.7926 -76.9479 -72.7884 INF INF
+region           leftdown2 block  -73.1028 -65.7926 -72.7884 -68.6289 INF INF
+region           leftdown3 block  -73.1028 -65.7926 -68.6289 -64.4694 INF INF
+region           leftdown4 block  -65.7926 -58.4824 -76.9479 -72.7884 INF INF
+region           leftdown5 block  -58.4824 -51.1724 -76.9479 -72.7884 INF INF
+region           leftdown6 block  -58.4824 -51.1724 -72.7884 -68.6289 INF INF
+region           leftdown7 block  -58.4824 -51.1724 -68.6289 -64.4694 INF INF
+region           leftdown8 block  -65.7926 -58.4824 -68.6289 -64.4694 INF INF
+#
+region           righturu block  73.1029  80.4132  85.2669 93.5859 INF INF
+region           righturd block  73.1029  80.4132  43.6719 47.8314 INF INF
+region           rigthulu block  43.8618  51.1721  85.2669 93.5859 INF INF
+region           rigthuld block  43.8618  51.1721  43.6719 47.8314 INF INF
+region           rightdru block  73.1029  80.4132  -47.8314 -43.6719 INF INF
+region           rightdrd block  73.1029  80.4132  -93.5859 -85.2669 INF INF
+region           rigthdlu block  43.8618  51.1721  -47.8314 -43.6719 INF INF
+region           rigthdld block  43.8618  51.1721  -93.5859 -85.2669 INF INF
+region           lefturu  block   -51.1721 -43.8618 85.2669 93.5859 INF INF
+region           lefturd  block   -51.1721 -43.8618 43.6719 47.8314 INF INF
+region           leftulu  block   -80.4132 -73.1029 85.2669 93.5859 INF INF
+region           leftuld  block   -80.4132 -73.1029 43.6719 47.8314 INF INF 
+region           leftdru  block   -51.1721 -43.8618 -47.8314 -43.6719 INF INF
+region           leftdrd  block   -51.1721 -43.8618 -93.5859 -85.2669 INF INF
+region           leftdlu  block   -80.4132 -73.1029 -47.8314 -43.6719 INF INF
+region           leftdld  block   -80.4132 -73.1029 -93.5859 -85.2669 INF INF 
+region           midup    block  -3.05 3.05 68.6089 72.7884 INF INF
+region           middown  block  -3.05 3.05 -72.7884 -68.6289 INF INF
+region           leftmid  block  -65.7926 -58.4824 -2.05 2.05 INF INF
+region           rightmid block  58.4824 65.7926 -2.05 2.05 INF INF
+region           midup1    block  -3.05 3.05 85.2669 93.5859 INF INF
+region           middown1  block  -3.05 3.05 -93.5859 -85.2669 INF INF
+region           leftmid1  block  -80.4132 -73.1029 -2.05 2.05 INF INF
+region           rightmid1 block  73.1029  80.4132 -2.05 2.05 INF INF
+region           midup2    block  -3.05 3.05 43.6719 47.8314 INF INF
+region           middown2  block  -3.05 3.05 -47.8314 -43.6719 INF INF
+region           leftmid2  block  -51.1721 -43.8618 -2.05 2.05 INF INF
+region           rightmid2 block  43.8618  51.1721 -2.05 2.05 INF INF
+region           center   block  -3.05 3.05 -2.05 2.05 INF INF
+
+compute         fin1 all reduce/region  rightup ave c_5[*]
+compute         fin1a all reduce/region  rightup1 ave c_5[*]
+compute         fin1b all reduce/region  rightup2 ave c_5[*]
+compute         fin1c all reduce/region  rightup3 ave c_5[*]
+compute         fin1d all reduce/region  rightup4 ave c_5[*]
+compute         fin1e all reduce/region  rightup5 ave c_5[*]
+compute         fin1f all reduce/region  rightup6 ave c_5[*]
+compute         fin1g all reduce/region  rightup7 ave c_5[*]
+compute         fin1h all reduce/region  rightup8 ave c_5[*]
+#
+compute         fin2 all reduce/region  rightdown ave c_5[*]
+compute         fin2a all reduce/region  rightdown1 ave c_5[*]
+compute         fin2b all reduce/region  rightdown2 ave c_5[*]
+compute         fin2c all reduce/region  rightdown3 ave c_5[*]
+compute         fin2d all reduce/region  rightdown4 ave c_5[*]
+compute         fin2e all reduce/region  rightdown5 ave c_5[*]
+compute         fin2f all reduce/region  rightdown6 ave c_5[*]
+compute         fin2g all reduce/region  rightdown7 ave c_5[*]
+compute         fin2h all reduce/region  rightdown8 ave c_5[*]
+#
+compute         fin3 all reduce/region  leftup ave c_5[*]
+compute         fin3a all reduce/region  leftup1 ave c_5[*]
+compute         fin3b all reduce/region  leftup2 ave c_5[*]
+compute         fin3c all reduce/region  leftup3 ave c_5[*]
+compute         fin3d all reduce/region  leftup4 ave c_5[*]
+compute         fin3e all reduce/region  leftup5 ave c_5[*]
+compute         fin3f all reduce/region  leftup6 ave c_5[*]
+compute         fin3g all reduce/region  leftup7 ave c_5[*]
+compute         fin3h all reduce/region  leftup8 ave c_5[*]
+#
+compute         fin4 all reduce/region  leftdown ave c_5[*]
+compute         fin4a all reduce/region  leftdown1 ave c_5[*]
+compute         fin4b all reduce/region  leftdown2 ave c_5[*]
+compute         fin4c all reduce/region  leftdown3 ave c_5[*]
+compute         fin4d all reduce/region  leftdown4 ave c_5[*]
+compute         fin4e all reduce/region  leftdown5 ave c_5[*]
+compute         fin4f all reduce/region  leftdown6 ave c_5[*]
+compute         fin4g all reduce/region  leftdown7 ave c_5[*]
+compute         fin4h all reduce/region  leftdown8 ave c_5[*]
+
+compute         fin5 all reduce/region  righturu ave c_5[*]
+compute         fin6 all reduce/region  righturd ave c_5[*]
+compute         fin7 all reduce/region  rigthulu ave c_5[*]
+compute         fin8 all reduce/region  rigthuld ave c_5[*]
+compute         fin9 all reduce/region  rightdru ave c_5[*]
+compute         fin10 all reduce/region rightdrd ave c_5[*]
+compute         fin11 all reduce/region rigthdlu ave c_5[*]
+compute         fin12 all reduce/region rigthdld ave c_5[*]
+compute         fin13 all reduce/region lefturu  ave c_5[*]
+compute         fin14 all reduce/region lefturd  ave c_5[*]
+compute         fin15 all reduce/region leftulu  ave c_5[*]
+compute         fin16 all reduce/region leftuld  ave c_5[*]
+compute         fin17 all reduce/region leftdru  ave c_5[*]
+compute         fin18 all reduce/region leftdrd  ave c_5[*]
+compute         fin19 all reduce/region leftdlu  ave c_5[*]
+compute         fin20 all reduce/region leftdld  ave c_5[*]
+compute         fin21 all reduce/region midup    ave c_5[*]
+compute         fin22 all reduce/region middown  ave c_5[*]
+compute         fin23 all reduce/region leftmid  ave c_5[*]
+compute         fin24 all reduce/region rightmid ave c_5[*]
+compute         fin21a all reduce/region midup1    ave c_5[*]
+compute         fin22b all reduce/region middown1  ave c_5[*]
+compute         fin23c all reduce/region leftmid1  ave c_5[*]
+compute         fin24d all reduce/region rightmid1 ave c_5[*]
+compute         fin21e all reduce/region midup2    ave c_5[*]
+compute         fin22f all reduce/region middown2  ave c_5[*]
+compute         fin23g all reduce/region leftmid2  ave c_5[*]
+compute         fin24h all reduce/region rightmid2 ave c_5[*]
+compute         fin25 all reduce/region center   ave c_5[*]
+
+
+
+#output
+thermo          10
+thermo_style    custom step temp pxx pyy pxy density pe c_fin1[3] c_fin2[3] c_fin3[3] c_fin4[3] c_fin5[3] c_fin6[3] c_fin7[3] c_fin8[3] c_fin9[3] c_fin10[3] c_fin11[3] c_fin12[3] c_fin13[3] c_fin14[3] c_fin15[3] c_fin16[3] c_fin17[3] c_fin18[3] &
+c_fin19[3] c_fin20[3] c_fin21[3] c_fin22[3] c_fin23[3] c_fin24[3] c_fin25[3]  c_fin1a[3] c_fin1b[3] c_fin1c[3] c_fin1d[3] c_fin1e[3] c_fin1f[3] c_fin1g[3] c_fin1h[3] c_fin2a[3] c_fin2b[3] c_fin2c[3] c_fin2d[3] c_fin2e[3] c_fin2f[3] c_fin2g[3] c_fin2h[3] &
+c_fin3a[3] c_fin3b[3] c_fin3c[3] c_fin3d[3] c_fin3e[3] c_fin3f[3] c_fin3g[3] c_fin3h[3] c_fin4a[3] c_fin4b[3] c_fin4c[3] c_fin4d[3] c_fin4e[3] c_fin4f[3] c_fin4g[3] c_fin4h[3] c_fin21a[3] c_fin22b[3] c_fin23c[3] c_fin24d[3] c_fin21e[3] c_fin22f[3] c_fin23g[3] c_fin24h[3]
+
+dump            2 all custom 2000 InSe_small.lammpstrj id type element xs ys zs c_5[*] c_6[*]
+dump            3 anax custom 6000 InSe_xsmall.lammpstrj id type element xs ys zs c_5[*] c_6[*]
+dump            4 anay custom 6000 InSe_ysmall.lammpstrj id type element xs ys zs c_5[*] c_6[*]
+
+restart         50000 restart.*.relax
+
+velocity        all create 350.0 2524524
+
+compute         7 relax temp
+compute         8 all pressure NULL pair
+fix             npt relax npt temp 350.0 350.0 0.1 x 0.0 0.0 1.0 y 0.0 0.0 1.0
+fix             nve pz1 nve
+fix_modify      npt temp 7 press 8
+
+velocity        pz1 set 0.0 0.0 NULL
+fix             3 pz1 setforce 0.0 0.0 NULL
+
+timestep        0.001
+
+run             200000
+
+
